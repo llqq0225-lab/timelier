@@ -18,7 +18,16 @@ export default function AdminLogin() {
     const { error } = await createClient().auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      setError('이메일 또는 비밀번호가 맞지 않아요.');
+      // 원인을 같이 보여줌 (문제 해결용)
+      const m = error.message || '';
+      const why = /invalid login credentials/i.test(m)
+        ? '이메일 또는 비밀번호가 맞지 않아요.'
+        : /email not confirmed/i.test(m)
+          ? '이메일 인증이 안 된 계정이에요. Supabase에서 Auto Confirm 처리해 주세요.'
+          : /api key|apikey|jwt/i.test(m)
+            ? 'Supabase 키가 맞지 않아요. Vercel 환경변수를 확인해 주세요.'
+            : '로그인하지 못했어요.';
+      setError(`${why} (${m || error.name})`);
       return;
     }
     router.push('/admin');
