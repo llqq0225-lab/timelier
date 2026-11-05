@@ -8,6 +8,7 @@ import InstallPrompt from '@/components/InstallPrompt';
 import { KakaoFloat } from '@/components/KakaoButton';
 import Wordmark from '@/components/Wordmark';
 import AppSide from '@/components/AppSide';
+import DragScroll from '@/components/DragScroll';
 import { EntryPopup, RecommendPopup } from '@/components/Popups';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getSettings, kakaoOf, siteUrl, type Brand, type BrandCollection } from '@/lib/types';
@@ -108,6 +109,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <Toaster />
       <Tracker />
       <InstallPrompt />
+      <DragScroll />
     </>
   );
 }

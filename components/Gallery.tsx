@@ -42,7 +42,8 @@ function Slider({
 
   const go = (d: number) => onIndex(Math.min(images.length - 1, Math.max(0, index + d)));
   const arrow =
-    'hidden  absolute top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full bg-abyss/60 text-2xl text-fg shadow transition active:scale-90 disabled:!opacity-0';
+    // 마우스가 있는 기기(PC)에서만 보이는 화살표. 휴대폰은 손가락으로 넘김
+    'hidden [@media(hover:hover)]:flex absolute top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full bg-abyss/60 text-2xl text-fg shadow backdrop-blur-sm transition hover:bg-abyss/85 active:scale-90 disabled:!opacity-0 disabled:pointer-events-none';
 
   return (
     <div className={`relative group ${full ? 'h-full' : 'h-full'}`}>
@@ -63,8 +64,8 @@ function Slider({
       </div>
       {images.length > 1 && (
         <>
-          <button type="button" aria-label="이전 사진" onClick={() => go(-1)} disabled={index === 0} className={`${arrow} left-3 ${full ? '' : 'opacity-0 group-hover:opacity-100'}`}>‹</button>
-          <button type="button" aria-label="다음 사진" onClick={() => go(1)} disabled={index === images.length - 1} className={`${arrow} right-3 ${full ? '' : 'opacity-0 group-hover:opacity-100'}`}>›</button>
+          <button type="button" aria-label="이전 사진" onClick={() => go(-1)} disabled={index === 0} className={`${arrow} left-3`}>‹</button>
+          <button type="button" aria-label="다음 사진" onClick={() => go(1)} disabled={index === images.length - 1} className={`${arrow} right-3`}>›</button>
         </>
       )}
     </div>
