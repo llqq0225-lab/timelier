@@ -40,6 +40,10 @@
 
 html { scroll-behavior: smooth; }
 body { color: var(--color-fg); background: var(--color-paper); color-scheme: dark; }
+/* 한글이 단어 중간에서 끊기지 않게 (띄어쓰기 단위로 줄바꿈) */
+body { word-break: keep-all; overflow-wrap: break-word; }
+h1, h2, h3, .display { text-wrap: balance; }
+p { text-wrap: pretty; }
 html, body { overflow-x: clip; } /* 화면 밖으로 삐져나와 가로로 흔들리는 것 방지 */
 ::selection { background: var(--color-accent); color: var(--color-paper); }
 

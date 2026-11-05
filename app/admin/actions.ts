@@ -160,6 +160,7 @@ export async function saveSettings(formData: FormData) {
     'announce_text', 'popup_image', 'popup_title', 'popup_text', 'popup_link',
     'seo_title', 'seo_description', 'seo_keywords', 'og_image', 'icon_url', 'site_url', 'google_verification', 'naver_verification',
     'wm_text', 'wm_logo', 'wm_style', 'wm_opacity', 'wm_size', 'wm_reviews',
+    'insp1_image', 'insp1_title', 'insp1_desc', 'insp2_image', 'insp2_title', 'insp2_desc', 'insp3_image', 'insp3_title', 'insp3_desc',
   ];
   await supabase.from('site_settings').upsert([
     ...keys.map((key) => ({ key, value: (formData.get(key) ?? '').toString() })),

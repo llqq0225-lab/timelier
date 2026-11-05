@@ -139,14 +139,17 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl px-5 py-24 ">
           <Heading en="Inspection Atelier" ko="출고 전 모든 시계는 이 과정을 거칩니다" more={{ href: '/shipping', label: 'Inspection records' }} />
           <div className="grid gap-8 ">
-            {STEPS.map((s, i) => {
+            {STEPS.map((step, i) => {
               const v = ((videos.data ?? []) as Shipping[])[i];
+              const k = `insp${i + 1}_`;
+              const s = { n: step.n, t: settings[`${k}title`] || step.t, d: settings[`${k}desc`] || step.d };
+              const img = settings[`${k}image`] || v?.thumbnail_url; // 관리자에서 넣은 사진 → 없으면 최근 검수 사진
               return (
                 <div key={s.n} className="grid grid-cols-[112px_1fr] gap-5 items-start">
                   <div className="aspect-[4/5] overflow-hidden bg-panel">
-                    {v?.thumbnail_url && (
+                    {img && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={thumb(v.thumbnail_url)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      <img src={thumb(img)} alt="" loading="lazy" className="h-full w-full object-cover" />
                     )}
                   </div>
                   <div>

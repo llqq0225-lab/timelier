@@ -6,6 +6,26 @@ import { saveSettings } from '@/app/admin/actions';
 import ImageUpload from './ImageUpload';
 import WatermarkSettings from './WatermarkSettings';
 
+const STEP_DEFAULTS = [
+  { t: '입고 · 실물 확인', d: '들어온 시계를 한 점씩 꺼내 외관과 구성품을 확인합니다.' },
+  { t: '정밀 검수', d: '무브먼트, 각인, 마감과 작동 상태를 꼼꼼하게 살핍니다.' },
+  { t: '기록 · 출고', d: '검수 과정을 사진과 영상으로 남기고, 그대로 보여드린 뒤 보냅니다.' },
+];
+
+function StepSlot({ n, settings }: { n: number; settings: Record<string, string> }) {
+  const k = `insp${n}_`;
+  const [img, setImg] = useState(settings[`${k}image`] ?? '');
+  return (
+    <div className="border border-line rounded-lg p-4 space-y-3">
+      <b className="text-sm">{['I', 'II', 'III'][n - 1]} 단계</b>
+      <input type="hidden" name={`${k}image`} value={img} />
+      <ImageUpload value={img} onChange={setImg} folder="atelier" />
+      <input name={`${k}title`} className="input" defaultValue={settings[`${k}title`] ?? ''} placeholder={STEP_DEFAULTS[n - 1].t} />
+      <textarea name={`${k}desc`} rows={3} className="input" defaultValue={settings[`${k}desc`] ?? ''} placeholder={STEP_DEFAULTS[n - 1].d} />
+    </div>
+  );
+}
+
 export type Banner = { id: number; title: string | null; subtitle: string | null; image_url: string; link_url: string | null; is_active: boolean };
 
 function SubmitButton() {
@@ -43,8 +63,8 @@ export default function SettingsForm({ settings, banners }: { settings: Record<s
     <form action={saveSettings} className="space-y-8 max-w-3xl">
       <section className="bg-white border border-line p-6 space-y-4">
         <div>
-          <h2 className="font-bold">메인 배너 (최대 3장)</h2>
-          <p className="text-xs text-neutral-500 mt-1">가로로 긴 사진(약 1600×800)이 좋아요. 사진이 있는 배너만 순서대로 5초마다 넘어가요.</p>
+          <h2 className="font-bold">첫 화면 사진 (배너 1번이 첫 화면에 나와요)</h2>
+          <p className="text-xs text-neutral-500 mt-1">휴대폰 화면에 꽉 차는 <b>세로 사진(1080×1350 이상)</b>이 좋아요. 시계는 위쪽 가운데, 아래쪽 40%는 글씨가 올라가니 어둡고 비어 있는 사진이 고급스러워요.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-3">
           {[1, 2, 3].map((n) => (
@@ -113,6 +133,20 @@ export default function SettingsForm({ settings, banners }: { settings: Record<s
         <div>
           <label className="label">하단 사업자 정보</label>
           <textarea name="footer_info" rows={4} className="input" defaultValue={settings.footer_info} />
+        </div>
+      </section>
+
+      <section className="bg-white border border-line p-6 space-y-4">
+        <div>
+          <h2 className="font-bold">메인 · 검수 아틀리에 (I · II · III 단계)</h2>
+          <p className="text-xs text-neutral-500 mt-1">
+            단계마다 사진(세로 4:5 비율이 좋아요)과 제목·설명을 넣을 수 있어요. 비워두면 사진은 최근 검수 사진, 글은 회색 예시 문구가 그대로 나와요.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-3">
+          {[1, 2, 3].map((n) => (
+            <StepSlot key={n} n={n} settings={settings} />
+          ))}
         </div>
       </section>
 
