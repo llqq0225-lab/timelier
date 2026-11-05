@@ -5,6 +5,7 @@ import KakaoLink from '@/components/KakaoLink';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getSettings, kakaoOf, type Brand, type BrandCollection, type Product, type Review, type Shipping } from '@/lib/types';
 import { hasKakao } from '@/lib/kakao';
+import { thumb } from '@/lib/img';
 
 const PRODUCT_FIELDS = '*, brands(name_ko, name_en, slug)';
 
@@ -116,7 +117,7 @@ export default async function Home() {
                 <Link href={`/brand/${b.slug}?c=${encodeURIComponent(c.collection)}`} className="group block aspect-square overflow-hidden bg-panel">
                   {img && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img} alt={c.collection} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]" />
+                    <img src={thumb(img)} alt={c.collection} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]" />
                   )}
                 </Link>
                 <div className="px-6 py-14 ">
@@ -145,7 +146,7 @@ export default async function Home() {
                   <div className="aspect-[4/5] overflow-hidden bg-panel">
                     {v?.thumbnail_url && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={v.thumbnail_url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      <img src={thumb(v.thumbnail_url)} alt="" loading="lazy" className="h-full w-full object-cover" />
                     )}
                   </div>
                   <div>

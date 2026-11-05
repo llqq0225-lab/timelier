@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Shipping } from '@/lib/types';
+import { thumb } from '@/lib/img';
 
 type Card = { key: string; href: string; thumb: string | null; video: boolean; label?: string };
 
@@ -36,7 +37,7 @@ export default function InspectStrip({
         {cards.map((c) => (
           <Link key={c.key} href={c.href} className="group relative w-40 shrink-0 snap-start aspect-[4/5] overflow-hidden bg-panel">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            {c.thumb && <img src={c.thumb} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />}
+            {c.thumb && <img src={thumb(c.thumb)} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />}
             <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#1a0509]/85 to-transparent px-3 pb-3 pt-10 font-display text-[9.5px] font-medium uppercase tracking-[0.22em] text-fg/90">
               {c.video ? `▶ ${c.label === '출고영상' ? 'Film' : 'Film'}` : 'Inspected'}
             </span>

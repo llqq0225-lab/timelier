@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useList, type SavedItem } from '@/lib/local-store';
 import { hasKakao, type KakaoUrls } from '@/lib/kakao';
 import KakaoLink from './KakaoLink';
+import { thumb } from '@/lib/img';
 
 const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
 
@@ -207,7 +208,7 @@ export function RecommendPopup({ kakao }: { kakao: KakaoUrls }) {
             >
               <div className="aspect-square overflow-hidden rounded-md bg-panel">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {p.thumbnail_url && <img src={p.thumbnail_url} alt={p.name} className="h-full w-full object-cover group-hover:scale-105 transition duration-300" />}
+                {p.thumbnail_url && <img src={thumb(p.thumbnail_url)} alt={p.name} className="h-full w-full object-cover group-hover:scale-105 transition duration-300" />}
               </div>
               <p className="mt-1.5 text-[12px] font-semibold">{p.brands?.name_ko}</p>
               <p className="mt-0.5 text-[11px] leading-snug text-fg/55 line-clamp-2">{p.name}</p>

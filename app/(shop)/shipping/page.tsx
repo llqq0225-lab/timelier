@@ -3,6 +3,7 @@ import Link from 'next/link';
 import VideoGrid, { type VideoItem } from '@/components/VideoGrid';
 import { createPublicClient } from '@/lib/supabase/public';
 import type { Brand, Shipping } from '@/lib/types';
+import { thumb } from '@/lib/img';
 
 export const metadata: Metadata = { title: '실시간 검수' };
 
@@ -137,7 +138,7 @@ export default async function ShippingPage({ searchParams }: { searchParams: Pro
                 <Link key={s.id} href={`/shipping/${s.id}`} className="group block active:scale-[0.98] transition-transform">
                   <div className="relative aspect-[4/5] overflow-hidden bg-panel">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {s.thumbnail_url && <img src={s.thumbnail_url} alt="" loading="lazy" className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />}
+                    {s.thumbnail_url && <img src={thumb(s.thumbnail_url)} alt="" loading="lazy" className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />}
                     <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/70 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
                       <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white text-[8px] text-black">✓</span> 검수완료
                     </span>

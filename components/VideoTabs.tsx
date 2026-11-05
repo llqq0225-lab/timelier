@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Shipping } from '@/lib/types';
+import { thumb } from '@/lib/img';
 
 export function ShippingCard({ v, compact }: { v: Shipping; compact?: boolean }) {
   return (
@@ -12,7 +13,7 @@ export function ShippingCard({ v, compact }: { v: Shipping; compact?: boolean })
     >
       {v.thumbnail_url && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={v.thumbnail_url} alt={v.title ?? ''} loading="lazy" className="h-full w-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition duration-300" />
+        <img src={thumb(v.thumbnail_url)} alt={v.title ?? ''} loading="lazy" className="h-full w-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition duration-300" />
       )}
       {v.video_url && (
         <span className={`absolute right-1.5 top-1.5 rounded-full bg-black/60 text-white ${compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1 text-[11px]'}`}>▶{!compact && ' 영상'}</span>

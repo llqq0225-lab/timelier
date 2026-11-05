@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Lightbox } from './Gallery';
 import type { Review } from '@/lib/types';
+import { thumb } from '@/lib/img';
 
 /** 후기 사진들: 옆으로 넘기기(strip) 또는 바둑판(grid). 누르면 크게 */
 export default function ReviewStrip({ reviews, layout = 'strip' }: { reviews: Review[]; layout?: 'strip' | 'grid' }) {
@@ -28,7 +29,7 @@ export default function ReviewStrip({ reviews, layout = 'strip' }: { reviews: Re
             className={`${layout === 'strip' ? 'w-40 shrink-0 snap-start' : ''} aspect-[3/4] overflow-hidden bg-panel active:opacity-80`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt="고객 후기" loading="lazy" className="h-full w-full object-cover" />
+            <img src={thumb(src)} alt="고객 후기" loading="lazy" className="h-full w-full object-cover" />
           </button>
         ))}
       </div>

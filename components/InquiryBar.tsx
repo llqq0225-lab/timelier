@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { thumb as thumbUrl } from '@/lib/img';
 import KakaoLink from './KakaoLink';
 import { toast } from './Toaster';
 import type { KakaoUrls } from '@/lib/kakao';
@@ -49,7 +50,7 @@ export default function InquiryBar({ urls, name, thumb }: { urls: KakaoUrls; nam
       <div className="flex items-center gap-3 border border-rule bg-abyss/95 py-2.5 pl-2.5 pr-2 text-fg shadow-xl backdrop-blur">
         <span className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-paper">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {thumb && <img src={thumb} alt="" className="h-full w-full object-cover" />}
+          {thumb && <img src={thumbUrl(thumb)} alt="" className="h-full w-full object-cover" />}
         </span>
         <p className="min-w-0 flex-1 text-[13px] leading-snug">
           {captured ? '캡처한 상품, 바로 문의해 보세요.' : '이 시계에 대해 상담받아 보세요.'}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import ShortsViewer from './ShortsViewer';
+import { thumb } from '@/lib/img';
 
 export type VideoItem = {
   key: string;
@@ -27,7 +28,7 @@ export default function VideoGrid({ items }: { items: VideoItem[] }) {
             className="group relative aspect-[9/14] overflow-hidden rounded-lg bg-neutral-900 text-left active:scale-[0.97] transition-transform"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            {v.thumb && <img src={v.thumb} alt="" loading="lazy" className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />}
+            {v.thumb && <img src={thumb(v.thumb)} alt="" loading="lazy" className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />}
             <span className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-semibold text-white">
               <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" /> 출고영상
             </span>

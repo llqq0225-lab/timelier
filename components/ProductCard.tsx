@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { type Product } from '@/lib/types';
 import WishButton from './WishButton';
+import { thumb } from '@/lib/img';
 
 /** 상품 카드: 큰 사진 + 브랜드 + 이름. 순위·조회수·판매수 같은 표시는 넣지 않음 */
 export default function ProductCard({ p }: { p: Product; rank?: number }) {
@@ -10,7 +11,7 @@ export default function ProductCard({ p }: { p: Product; rank?: number }) {
         {p.thumbnail_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={p.thumbnail_url}
+            src={thumb(p.thumbnail_url)}
             alt={p.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"

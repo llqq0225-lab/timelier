@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { thumb } from '@/lib/img';
 
 /** 손가락으로 넘기는 사진 줄 */
 function Slider({
@@ -155,7 +156,7 @@ export default function Gallery({ images, alt }: { images: string[]; alt: string
                 className={`pointer-events-auto h-12 w-12 overflow-hidden border transition active:scale-90 ${real === idx ? 'border-white' : 'border-transparent opacity-75'}`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img src={thumb(src)} alt="" loading="lazy" className="h-full w-full object-cover" />
               </button>
             );
           })}

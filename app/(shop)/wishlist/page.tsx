@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { clearList, removeItem, useList, type SavedItem } from '@/lib/local-store';
+import { thumb } from '@/lib/img';
 
 function Grid({ items, onRemove }: { items: SavedItem[]; onRemove: (id: number) => void }) {
   return (
@@ -12,7 +13,7 @@ function Grid({ items, onRemove }: { items: SavedItem[]; onRemove: (id: number) 
           <Link href={`/product/${it.id}`} className="block active:scale-[0.98] transition-transform">
             <div className="aspect-square overflow-hidden rounded-md bg-panel">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {it.thumb && <img src={it.thumb} alt={it.name} loading="lazy" className="h-full w-full object-cover" />}
+              {it.thumb && <img src={thumb(it.thumb)} alt={it.name} loading="lazy" className="h-full w-full object-cover" />}
             </div>
             {it.brand && <p className="mt-3 text-xs text-fg/55">{it.brand}</p>}
             <p className="mt-1 text-sm leading-snug line-clamp-2">{it.name}</p>

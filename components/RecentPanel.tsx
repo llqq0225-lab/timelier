@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useList } from '@/lib/local-store';
+import { thumb } from '@/lib/img';
 
 /** 큰 PC 화면 오른쪽에 따라다니는 '최근 본 상품' */
 export default function RecentPanel() {
@@ -18,7 +19,7 @@ export default function RecentPanel() {
       {recent.slice(0, 4).map((r) => (
         <Link key={r.id} href={`/product/${r.id}`} title={r.name} className="block w-20 h-20 overflow-hidden rounded-lg bg-panel active:scale-95 transition">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {r.thumb && <img src={r.thumb} alt={r.name} className="h-full w-full object-cover" />}
+          {r.thumb && <img src={thumb(r.thumb)} alt={r.name} className="h-full w-full object-cover" />}
         </Link>
       ))}
       <Link href="/wishlist?tab=recent" className="text-[11px] text-fg/55 hover:text-fg">전체보기</Link>
