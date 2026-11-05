@@ -2,10 +2,33 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { WM_KEYS, drawWatermark, readWm, type WmConfig } from '@/lib/watermark';
 
-/** 휴대폰 원본처럼 큰 사진은 올리기 전에 가로 1600px JPG로 줄임 (빠르고 용량 절약) */
-async function shrink(file: File, max = 1600): Promise<Blob> {
-  if (!/^image\/(jpeg|png|webp|heic|heif)$/i.test(file.type) || file.size < 400 * 1024) return file;
+/** 워터마크를 찍는 사진 종류 (배너·로고·팝업·공유이미지 등에는 안 찍음) */
+const WM_FOLDERS = ['products', 'shipping', 'reviews'];
+
+// 워터마크 설정은 한 번만 불러옴
+let wmPromise: Promise<WmConfig> | null = null;
+function getWm(): Promise<WmConfig> {
+  if (!wmPromise) {
+    wmPromise = (async () => {
+      const { data } = await createClient().from('site_settings').select('key, value').in('key', [...WM_KEYS, 'site_name']);
+      return readWm(Object.fromEntries((data ?? []).map((r: { key: string; value: string }) => [r.key, r.value])));
+    })();
+  }
+  return wmPromise;
+}
+/** 설정을 저장한 뒤 다시 불러오도록 */
+export function resetWatermarkCache() {
+  wmPromise = null;
+}
+
+/** 큰 사진은 가로 1600px JPG로 줄이고, 필요하면 워터마크를 찍음 */
+async function process(file: File, folder: string, max = 1600): Promise<Blob> {
+  if (!/^image\/(jpeg|png|webp|heic|heif)$/i.test(file.type)) return file;
+  const wm = WM_FOLDERS.includes(folder) ? await getWm().catch(() => null) : null;
+  const useWm = !!wm?.on && (folder !== 'reviews' || wm.reviews);
+  if (!useWm && file.size < 400 * 1024) return file;
   try {
     const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
     const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
@@ -17,8 +40,10 @@ async function shrink(file: File, max = 1600): Promise<Blob> {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
     bmp.close();
-    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.85));
-    return blob && blob.size < file.size ? blob : file;
+    if (useWm && wm) await drawWatermark(ctx, canvas.width, canvas.height, wm);
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.88));
+    if (!blob) return file;
+    return useWm || blob.size < file.size ? blob : file;
   } catch {
     return file; // 브라우저가 못 읽는 형식이면 원본 그대로
   }
@@ -27,7 +52,7 @@ async function shrink(file: File, max = 1600): Promise<Blob> {
 /** 사진을 Supabase 저장소(media)에 올리고 주소를 돌려줌 */
 export async function uploadImage(file: File, folder = 'products'): Promise<string> {
   const supabase = createClient();
-  const body = await shrink(file);
+  const body = await process(file, folder);
   const ext = body === file ? file.name.split('.').pop()?.toLowerCase() || 'jpg' : 'jpg';
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const { error } = await supabase.storage

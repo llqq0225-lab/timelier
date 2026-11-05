@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { saveSettings } from '@/app/admin/actions';
 import ImageUpload from './ImageUpload';
+import WatermarkSettings from './WatermarkSettings';
 
 export type Banner = { id: number; title: string | null; subtitle: string | null; image_url: string; link_url: string | null; is_active: boolean };
 
@@ -114,6 +115,8 @@ export default function SettingsForm({ settings, banners }: { settings: Record<s
           <textarea name="footer_info" rows={4} className="input" defaultValue={settings.footer_info} />
         </div>
       </section>
+
+      <WatermarkSettings settings={settings} />
 
       <section className="bg-white border border-line p-6 space-y-5">
         <div>

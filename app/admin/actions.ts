@@ -159,10 +159,12 @@ export async function saveSettings(formData: FormData) {
     'site_name', 'kakao_url', 'kakao_openchat_url', 'bank_info', 'footer_info', 'shipping_method', 'shipping_fee',
     'announce_text', 'popup_image', 'popup_title', 'popup_text', 'popup_link',
     'seo_title', 'seo_description', 'seo_keywords', 'og_image', 'icon_url', 'site_url', 'google_verification', 'naver_verification',
+    'wm_text', 'wm_logo', 'wm_style', 'wm_opacity', 'wm_size', 'wm_reviews',
   ];
   await supabase.from('site_settings').upsert([
     ...keys.map((key) => ({ key, value: (formData.get(key) ?? '').toString() })),
     { key: 'popup_enabled', value: formData.get('popup_enabled') === 'on' ? 'Y' : 'N' },
+    { key: 'wm_on', value: formData.get('wm_on') === 'on' ? 'Y' : 'N' },
   ]);
 
   // 메인 배너 3칸
