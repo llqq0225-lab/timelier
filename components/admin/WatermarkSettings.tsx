@@ -75,9 +75,11 @@ export default function WatermarkSettings({ settings }: { settings: Record<strin
           <div>
             <label className="label">모양</label>
             <input type="hidden" name="wm_style" value={style} />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {(
                 [
+                  ['right', '은은하게 · 가운데 오른쪽'],
+                  ['left', '은은하게 · 가운데 왼쪽'],
                   ['tile', '사선 반복'],
                   ['center', '가운데 크게'],
                   ['corner', '오른쪽 아래'],

@@ -1,6 +1,6 @@
 /** 사진 워터마크 (관리자에서 사진 올릴 때 자동으로 찍힘) */
 
-export type WmStyle = 'tile' | 'corner' | 'center';
+export type WmStyle = 'right' | 'left' | 'tile' | 'corner' | 'center';
 export type WmConfig = {
   on: boolean;
   text: string;
@@ -14,13 +14,14 @@ export type WmConfig = {
 export const WM_KEYS = ['wm_on', 'wm_text', 'wm_logo', 'wm_style', 'wm_opacity', 'wm_size', 'wm_reviews'] as const;
 
 export function readWm(s: Record<string, string | undefined>): WmConfig {
-  const style = s.wm_style === 'corner' || s.wm_style === 'center' ? s.wm_style : 'tile';
+  const styles: WmStyle[] = ['right', 'left', 'tile', 'corner', 'center'];
+  const style = styles.includes(s.wm_style as WmStyle) ? (s.wm_style as WmStyle) : 'right';
   return {
     on: s.wm_on === 'Y',
     text: (s.wm_text || s.site_name || '').trim(),
     logo: (s.wm_logo || '').trim(),
     style,
-    opacity: Math.min(80, Math.max(5, Number(s.wm_opacity) || 22)),
+    opacity: Math.min(80, Math.max(5, Number(s.wm_opacity) || 30)),
     size: Math.min(3, Math.max(1, Number(s.wm_size) || 2)),
     reviews: s.wm_reviews !== 'N',
   };
@@ -49,6 +50,37 @@ export async function drawWatermark(ctx: CanvasRenderingContext2D, w: number, h:
   const base = Math.min(w, h);
   const scale = [0, 0.7, 1, 1.4][cfg.size];
   const logo = cfg.logo ? await loadLogo(cfg.logo) : null;
+
+  // 은은하게: 가운데에서 살짝 옆, 작은 글자를 넓게 띄워 쓰고 그림자만 살짝
+  if (cfg.style === 'right' || cfg.style === 'left') {
+    const px = Math.round(base * 0.028 * [0, 0.8, 1, 1.3][cfg.size]);
+    const f = `500 ${px}px Montserrat, "Pretendard", sans-serif`;
+    try {
+      await document.fonts?.load(f);
+    } catch {
+      /* 기본 글꼴 */
+    }
+    const cx = w / 2 + (cfg.style === 'right' ? 1 : -1) * w * 0.2;
+    const cy = h * 0.5;
+    ctx.save();
+    ctx.globalAlpha = cfg.opacity / 100;
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = px * 0.6;
+    if (logo) {
+      const lw = base * 0.12 * [0, 0.8, 1, 1.3][cfg.size];
+      const lh = (logo.height / logo.width) * lw;
+      ctx.drawImage(logo, cx - lw / 2, cy - lh / 2, lw, lh);
+    } else {
+      ctx.font = f;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${Math.round(px * 0.45)}px`;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(cfg.text.toUpperCase(), cx, cy);
+    }
+    ctx.restore();
+    return;
+  }
 
   // 글자 크기·모양별
   const fontPx = Math.round(base * (cfg.style === 'tile' ? 0.045 : cfg.style === 'center' ? 0.09 : 0.04) * scale);
