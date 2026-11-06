@@ -36,6 +36,7 @@
   --font-sans: "Pretendard", system-ui, -apple-system, sans-serif;
   --font-display: "Montserrat", "Pretendard", system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", "Pretendard", Georgia, serif;
+  --font-kserif: "Cormorant Garamond", "Noto Serif KR", "Nanum Myeongjo", "AppleMyungjo", serif; /* 영문은 Cormorant, 한글은 명조 */
 }
 
 html { scroll-behavior: smooth; }
@@ -88,3 +89,10 @@ html, body { overflow-x: clip; } /* 화면 밖으로 삐져나와 가로로 흔�
 @media (min-width: 1100px) {
   .app-side { display: flex; position: fixed; inset: 0 auto 0 0; width: var(--app-left); }
 }
+
+/* About 페이지: 스크롤하면 부드럽게 나타남 (JS가 켜졌을 때만 숨겼다가 보여줌) */
+.reveal-on .reveal { opacity: 0; transform: translateY(18px); transition: opacity 1.1s ease, transform 1.1s ease; }
+.reveal-on .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal-on .reveal { opacity: 1; transform: none; transition: none; } }
+/* 명조 글꼴 안의 숫자(1:1 등)가 작아 보이지 않게 */
+.font-kserif { font-variant-numeric: lining-nums; }

@@ -16,6 +16,7 @@ const MENU = [
   { href: '/admin/brands', label: '브랜드 · 로고' },
   { href: '/admin/notices', label: '공지사항' },
   { href: '/admin/settings', label: '배너 · 사이트 설정' },
+  { href: '/admin/about', label: '메종 이야기 (About)' },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

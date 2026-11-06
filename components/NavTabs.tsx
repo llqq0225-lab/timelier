@@ -11,6 +11,7 @@ export const TABS = [
   { href: '/brand/domestic', label: 'In Boutique', ko: '바로 배송' },
   { href: '/shipping', label: 'Inspection', ko: '검수 아틀리에' },
   { href: '/reviews', label: 'Client Stories', ko: '고객 이야기' },
+  { href: '/about', label: 'The Maison', ko: '메종 이야기' },
 ] as { href: string; label: string; ko: string; mega?: boolean; dot?: boolean }[];
 
 function isActive(path: string, href: string) {

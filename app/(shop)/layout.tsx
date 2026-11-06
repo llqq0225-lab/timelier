@@ -77,6 +77,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
             <div>
               <p className="eyebrow">The Maison</p>
               <ul className="mt-5 space-y-2.5 text-fg/70">
+                <li><Link href="/about" className="hover:text-accent">메종 이야기</Link></li>
                 <li><Link href="/ranking" className="hover:text-accent">셀렉션</Link></li>
                 <li><Link href="/brands" className="hover:text-accent">컬렉션</Link></li>
                 <li><Link href="/brand/domestic" className="hover:text-accent">바로 배송</Link></li>

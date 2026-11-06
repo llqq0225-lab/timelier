@@ -365,6 +365,16 @@ export async function createBrand(nameKo: string, nameEn: string): Promise<{ id:
   return { id: data.id, name_ko: data.name_ko, existed: false };
 }
 
+/* ---------------- 메종 이야기 (About) ---------------- */
+
+export async function saveAbout(json: string) {
+  const supabase = await requireAdmin();
+  JSON.parse(json); // 형식 확인
+  const { error } = await supabase.from('site_settings').upsert({ key: 'about_blocks', value: json });
+  if (error) throw new Error(error.message);
+  revalidatePath('/about');
+}
+
 /* ---------------- 상세분류(모델) 이미지 ---------------- */
 
 export async function saveCollectionImage(brandId: number, collection: string, imageUrl: string | null) {
