@@ -66,6 +66,12 @@ export default function AboutEditor({ initial }: { initial: AboutBlock[] }) {
               <ImageUpload value={b.image} onChange={(v) => update(i, { image: v })} folder="about" />
             </div>
           )}
+          {(b.type === 'split' || b.type === 'image') && (
+            <div>
+              <label className="label">두 번째 사진 (선택 · 넣으면 두 장이 나란히 보여요)</label>
+              <ImageUpload value={b.image2 ?? ''} onChange={(v) => update(i, { image2: v })} folder="about" />
+            </div>
+          )}
           {'eyebrow' in b && <Field label="작은 영문 (예: Our Story)" value={b.eyebrow} onChange={(v) => update(i, { eyebrow: v })} />}
           {'title' in b && <Field label="제목 (줄바꿈 가능)" rows={2} value={b.title} onChange={(v) => update(i, { title: v })} />}
           {b.type === 'hero' && <Field label="작은 문구" value={b.subtitle} onChange={(v) => update(i, { subtitle: v })} />}
@@ -80,10 +86,10 @@ export default function AboutEditor({ initial }: { initial: AboutBlock[] }) {
           )}
           {b.type === 'split' && (
             <div className="flex gap-2 text-sm">
-              <span className="text-neutral-500">사진 위치</span>
-              {(['left', 'right'] as const).map((s) => (
+              <span className="text-neutral-500">사진 위치 (두 장이면 '가운데'를 추천해요)</span>
+              {(['left', 'center', 'right'] as const).map((s) => (
                 <button key={s} type="button" className={`btn-line !py-1 text-xs ${b.side === s ? '!border-ink font-bold' : ''}`} onClick={() => update(i, { side: s })}>
-                  {s === 'left' ? '왼쪽' : '오른쪽'}
+                  {s === 'left' ? '왼쪽' : s === 'center' ? '가운데' : '오른쪽'}
                 </button>
               ))}
             </div>

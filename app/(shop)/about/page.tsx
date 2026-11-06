@@ -38,6 +38,12 @@ const Ornament = () => (
   </div>
 );
 
+/** 세로 4:5 사진 */
+const Img = ({ src, alt = '', className = '' }: { src: string; alt?: string; className?: string }) => (
+  // eslint-disable-next-line @next/next/no-img-element
+  <img src={src} alt={alt} loading="lazy" className={`block aspect-[4/5] w-full object-cover ${className}`} />
+);
+
 function Block({ b, i }: { b: AboutBlock; i: number }) {
   switch (b.type) {
     case 'hero':
@@ -77,34 +83,63 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
         </section>
       );
 
-    case 'image':
-      if (!b.image) return null;
+    case 'image': {
+      const pics = [b.image, b.image2].filter(Boolean) as string[];
+      if (!pics.length) return null;
       return (
-        <figure className={`reveal ${b.wide ? '' : 'px-8'} py-6`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={b.image} alt={b.caption} loading="lazy" className={`w-full object-cover ${b.wide ? 'aspect-[4/5]' : 'aspect-[4/5]'}`} />
-          {b.caption && <figcaption className="mt-4 px-8 text-center font-serif text-[13px] italic text-fg/45">{b.caption}</figcaption>}
+        <figure className={`reveal py-8 ${b.wide ? '' : 'px-8'}`}>
+          {pics.length === 2 ? (
+            <div className={`grid grid-cols-2 items-start ${b.wide ? 'gap-0.5' : 'gap-3'}`}>
+              <Img src={pics[0]} alt={b.caption} />
+              <Img src={pics[1]} alt="" className="mt-10" />
+            </div>
+          ) : (
+            <Img src={pics[0]} alt={b.caption} />
+          )}
+          {b.caption && <figcaption className="mt-5 px-8 text-center font-serif text-[13px] italic text-fg/45">{b.caption}</figcaption>}
         </figure>
       );
+    }
 
     case 'split': {
-      const right = b.side === 'right';
+      const side = b.side ?? 'left';
+      const pics = [b.image, b.image2].filter(Boolean) as string[];
+      const center = side === 'center';
+      const right = side === 'right';
+      /* 사진 영역: 가운데 = 양쪽 여백 / 왼쪽·오른쪽 = 한쪽 화면 끝에 닿고 반대쪽은 여백 */
+      const pad = center ? 'px-8' : right ? 'pl-16' : 'pr-16';
       return (
         <section className="py-16">
-          {b.image && (
-            <div className={`reveal ${right ? 'pl-16' : 'pr-16'}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={b.image} alt="" loading="lazy" className="aspect-[4/5] w-full object-cover" />
+          {pics.length > 0 && (
+            <div className={`reveal ${pad}`}>
+              {pics.length === 2 ? (
+                center ? (
+                  <div className="grid grid-cols-2 items-start gap-3">
+                    <Img src={pics[0]} />
+                    <Img src={pics[1]} className="mt-10" />
+                  </div>
+                ) : (
+                  /* 큰 사진 + 작은 사진이 살짝 겹치는 잡지식 배치 */
+                  <div className="relative pb-16">
+                    <Img src={pics[0]} />
+                    <div className={`absolute bottom-0 w-[44%] border-[3px] border-paper ${right ? '-left-8' : '-right-8'}`}>
+                      <Img src={pics[1]} />
+                    </div>
+                  </div>
+                )
+              ) : (
+                <Img src={pics[0]} />
+              )}
             </div>
           )}
-          <div className={`reveal px-8 ${b.image ? 'mt-10' : ''} ${right ? 'text-right' : ''}`}>
-            <div className={`flex items-center gap-4 ${right ? 'flex-row-reverse' : ''}`}>
+          <div className={`reveal px-8 ${pics.length ? 'mt-10' : ''} ${right ? 'text-right' : center ? 'text-center' : ''}`}>
+            <div className={`flex items-center gap-4 ${right ? 'flex-row-reverse' : center ? 'justify-center' : ''}`}>
               <span className="font-serif text-[15px] italic text-accent/80">{String(i).padStart(2, '0')}</span>
               <span className="h-px w-8 bg-accent/40" />
               <Eyebrow>{b.eyebrow}</Eyebrow>
             </div>
             {b.title && <h3 className="mt-5 font-kserif text-[26px] font-light leading-[1.45] text-fg whitespace-pre-line">{b.title}</h3>}
-            <div className="mt-5 font-kserif text-[14.5px] font-light leading-[2.1] text-fg/70">
+            <div className={`mt-5 font-kserif text-[14.5px] font-light leading-[2.1] text-fg/70 ${center ? 'mx-auto max-w-[22rem]' : ''}`}>
               <Paras text={b.body} />
             </div>
           </div>

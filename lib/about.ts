@@ -3,8 +3,8 @@
 export type AboutBlock =
   | { type: 'hero'; image: string; eyebrow: string; title: string; subtitle: string }
   | { type: 'text'; eyebrow: string; title: string; body: string }
-  | { type: 'image'; image: string; caption: string; wide: boolean }
-  | { type: 'split'; image: string; eyebrow: string; title: string; body: string; side: 'left' | 'right' }
+  | { type: 'image'; image: string; image2?: string; caption: string; wide: boolean }
+  | { type: 'split'; image: string; image2?: string; eyebrow: string; title: string; body: string; side: 'left' | 'center' | 'right' }
   | { type: 'quote'; text: string; cite: string }
   | { type: 'pillars'; eyebrow: string; title: string; items: { title: string; body: string }[] };
 
@@ -24,9 +24,9 @@ export function emptyBlock(type: AboutBlock['type']): AboutBlock {
     case 'text':
       return { type, eyebrow: '', title: '', body: '' };
     case 'image':
-      return { type, image: '', caption: '', wide: true };
+      return { type, image: '', image2: '', caption: '', wide: false };
     case 'split':
-      return { type, image: '', eyebrow: '', title: '', body: '', side: 'left' };
+      return { type, image: '', image2: '', eyebrow: '', title: '', body: '', side: 'center' };
     case 'quote':
       return { type, text: '', cite: '' };
     case 'pillars':
