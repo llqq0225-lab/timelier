@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Reveal from '@/components/about/Reveal';
+import Zoom from '@/components/about/Zoom';
 import KakaoLink from '@/components/KakaoLink';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getSettings, kakaoOf } from '@/lib/types';
@@ -41,7 +42,7 @@ const Ornament = () => (
 /** 세로 4:5 사진 */
 const Img = ({ src, alt = '', className = '' }: { src: string; alt?: string; className?: string }) => (
   // eslint-disable-next-line @next/next/no-img-element
-  <img src={src} alt={alt} loading="lazy" className={`block aspect-[4/5] w-full object-cover ${className}`} />
+  <img src={src} alt={alt} loading="lazy" data-zoom className={`block aspect-[4/5] w-full cursor-zoom-in object-cover ${className}`} />
 );
 
 function Block({ b, i }: { b: AboutBlock; i: number }) {
@@ -194,6 +195,7 @@ export default async function AboutPage() {
       {/* 한글 명조체 (Noto Serif KR) */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap" precedence="default" />
       <Reveal />
+      <Zoom />
       {blocks.map((b, i) => (
         <Block key={i} b={b} i={blocks.slice(0, i + 1).filter((x) => x.type === 'split').length} />
       ))}
