@@ -6,6 +6,8 @@ import { createPublicClient } from '@/lib/supabase/public';
 import { getSettings, kakaoOf, type Brand, type BrandCollection, type Product, type Review, type Shipping } from '@/lib/types';
 import { hasKakao } from '@/lib/kakao';
 import { thumb } from '@/lib/img';
+import ShowcaseRow from '@/components/ShowcaseRow';
+import { parseShowcases } from '@/lib/showcase';
 
 const PRODUCT_FIELDS = '*, brands(name_ko, name_en, slug)';
 
@@ -51,17 +53,53 @@ export default async function Home() {
   const hero = ((banners.data ?? []) as Banner[])[0];
   const kakao = kakaoOf(settings);
 
-  // 컬렉션 이야기: 상품이 가장 많은 모델 3개 + 대표 사진
-  const topCols = ((cols.data ?? []) as BrandCollection[]).filter((c) => brandById.has(c.brand_id)).sort((a, b) => b.cnt - a.cnt).slice(0, 3);
-  const colImgs = await Promise.all(
-    topCols.map(async (c) => {
-      const [{ data: custom }, { data: prod }] = await Promise.all([
-        supabase.from('collection_images').select('image_url').eq('brand_id', c.brand_id).eq('collection', c.collection).maybeSingle(),
-        supabase.from('products').select('thumbnail_url').eq('brand_id', c.brand_id).eq('collection', c.collection).not('thumbnail_url', 'is', null).order('view_count', { ascending: false }).limit(1).maybeSingle(),
-      ]);
-      return (custom?.image_url as string | undefined) ?? (prod?.thumbnail_url as string | undefined) ?? null;
-    }),
-  );
+  // 배너 + 제품 줄: 관리자 '메인 쇼케이스'에서 설정 → 없으면 상품이 가장 많은 모델 3개로 자동
+  type Show = { image: string | null; title: string; subtitle: string; href: string; products: Product[] };
+  const saved = parseShowcases(settings.home_showcases);
+  let shows: Show[];
+  if (saved) {
+    shows = await Promise.all(
+      saved.map(async (sc): Promise<Show> => {
+        const b = sc.brand_id ? brandById.get(sc.brand_id) : undefined;
+        let products: Product[] = [];
+        if (sc.mode === 'pick') {
+          if (sc.product_ids.length) {
+            const { data } = await supabase.from('products').select(PRODUCT_FIELDS).in('id', sc.product_ids);
+            const byId = new Map(((data ?? []) as Product[]).map((p) => [p.id, p]));
+            products = sc.product_ids.map((id) => byId.get(id)).filter(Boolean) as Product[];
+          }
+        } else if (b) {
+          let q = supabase.from('products').select(PRODUCT_FIELDS).eq('brand_id', b.id);
+          if (sc.collection) q = q.eq('collection', sc.collection);
+          const { data } = await q.order('sort_order').order('created_at', { ascending: false }).limit(sc.limit || 8);
+          products = (data ?? []) as Product[];
+        }
+        const href =
+          sc.mode === 'brand' && b ? `/brand/${b.slug}${sc.collection ? `?c=${encodeURIComponent(sc.collection)}` : ''}` : '/ranking';
+        const title = sc.title || (b ? [b.name_en ?? b.name_ko, sc.collection].filter(Boolean).join(' ') : 'The Selection');
+        return { image: sc.image || null, title, subtitle: sc.subtitle, href, products };
+      }),
+    );
+  } else {
+    const topCols = ((cols.data ?? []) as BrandCollection[]).filter((c) => brandById.has(c.brand_id)).sort((a, b) => b.cnt - a.cnt).slice(0, 3);
+    shows = await Promise.all(
+      topCols.map(async (c): Promise<Show> => {
+        const b = brandById.get(c.brand_id)!;
+        const [{ data: custom }, { data: prods }] = await Promise.all([
+          supabase.from('collection_images').select('image_url').eq('brand_id', c.brand_id).eq('collection', c.collection).maybeSingle(),
+          supabase.from('products').select(PRODUCT_FIELDS).eq('brand_id', c.brand_id).eq('collection', c.collection).order('sort_order').order('created_at', { ascending: false }).limit(8),
+        ]);
+        const list = (prods ?? []) as Product[];
+        return {
+          image: (custom?.image_url as string | undefined) ?? list.find((p) => p.thumbnail_url)?.thumbnail_url ?? null,
+          title: `${b.name_en ?? b.name_ko} ${c.collection}`,
+          subtitle: `${b.name_ko} ${c.collection} · ${c.cnt}점`,
+          href: `/brand/${b.slug}?c=${encodeURIComponent(c.collection)}`,
+          products: list,
+        };
+      }),
+    );
+  }
 
   return (
     <>
@@ -106,31 +144,30 @@ export default async function Home() {
         )}
       </section>
 
-      {/* 컬렉션 이야기 */}
-      {topCols.length > 0 && (
+      {/* 배너 + 제품 줄 */}
+      {shows.length > 0 && (
         <section className="border-t border-rule">
-          {topCols.map((c, i) => {
-            const b = brandById.get(c.brand_id)!;
-            const img = colImgs[i];
-            return (
-              <div key={`${c.brand_id}-${c.collection}`} className={`grid items-center border-b border-rule ${i % 2 ? '' : ''}`}>
-                <Link href={`/brand/${b.slug}?c=${encodeURIComponent(c.collection)}`} className="group block aspect-square overflow-hidden bg-panel">
-                  {img && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={thumb(img)} alt={c.collection} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]" />
-                  )}
+          {shows.map((sh, i) => (
+            <div key={i} className="pb-16">
+              {sh.image && (
+                <Link href={sh.href} className="group block aspect-[2/1] overflow-hidden bg-panel">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={sh.image} alt={sh.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]" />
                 </Link>
-                <div className="px-6 py-14 ">
-                  <p className="eyebrow">{b.name_en ?? b.name_ko}</p>
-                  <h3 className="display mt-5 text-[40px] text-fg">{c.collection}</h3>
-                  <p className="mt-6 max-w-sm text-[14px] leading-[1.9] text-fg/60">
-                    {b.name_ko}의 {c.collection}. 타임리에의 검수를 마친 {c.cnt}점의 셀렉션을 만나보세요.
-                  </p>
-                  <Link href={`/brand/${b.slug}?c=${encodeURIComponent(c.collection)}`} className="cta mt-9">Explore</Link>
-                </div>
-              </div>
-            );
-          })}
+              )}
+              <ShowcaseRow title={sh.title} subtitle={sh.subtitle} href={sh.href}>
+                {sh.products.length ? (
+                  sh.products.map((p) => (
+                    <div key={p.id} className="w-[44%] shrink-0 snap-start">
+                      <ProductCard p={p} />
+                    </div>
+                  ))
+                ) : (
+                  <p className="py-6 text-[13px] text-fg/45">등록된 상품이 아직 없어요.</p>
+                )}
+              </ShowcaseRow>
+            </div>
+          ))}
         </section>
       )}
 

@@ -410,3 +410,13 @@ export async function resetArrangement(scope: string) {
   if (error) throw new Error(error.message);
   revalidatePath('/', 'layout');
 }
+
+/* ---------------- 메인 쇼케이스 (배너 + 제품 줄) ---------------- */
+
+export async function saveShowcases(json: string) {
+  const supabase = await requireAdmin();
+  JSON.parse(json); // 형식 확인
+  const { error } = await supabase.from('site_settings').upsert({ key: 'home_showcases', value: json });
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+}
