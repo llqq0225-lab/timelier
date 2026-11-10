@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Reveal from '@/components/about/Reveal';
 import Zoom from '@/components/about/Zoom';
+import Rich from '@/components/about/Rich';
 import KakaoLink from '@/components/KakaoLink';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getSettings, kakaoOf } from '@/lib/types';
 import { hasKakao } from '@/lib/kakao';
-import { parseAbout, parseStyle, styleVars, type AboutBlock } from '@/lib/about';
+import { blockStyle, parseAbout, parseStyle, styleVars, type AboutBlock } from '@/lib/about';
 
 export const revalidate = 60;
 export const metadata: Metadata = { title: 'The Maison', description: '타임리에 이야기 — 시간을 고르는 일' };
@@ -20,7 +21,7 @@ function Paras({ text, className = '' }: { text: string; className?: string }) {
         .filter((p) => p.trim())
         .map((p, i) => (
           <p key={i} className={`whitespace-pre-line ${className} ${i ? 'mt-6' : ''}`}>
-            {p.trim()}
+            <Rich text={p.trim()} />
           </p>
         ))}
     </>
@@ -58,8 +59,8 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
           <div className="absolute inset-x-0 bottom-0 px-8 pb-20 text-center">
             <div className="reveal">
               <Eyebrow>{b.eyebrow}</Eyebrow>
-              <h1 className="mt-7 font-kserif ab-title leading-[1.25] tracking-[-0.01em] text-fg whitespace-pre-line [text-shadow:0_2px_24px_rgba(26,5,9,0.6)]" style={{ fontSize: 'calc(40px * var(--ab-ts))' }}>{b.title}</h1>
-              {b.subtitle && <p className="mt-6 font-serif text-[15px] italic text-fg/65">{b.subtitle}</p>}
+              <h1 className="mt-7 font-kserif ab-title leading-[1.25] tracking-[-0.01em] text-fg whitespace-pre-line [text-shadow:0_2px_24px_rgba(26,5,9,0.6)]" style={{ fontSize: 'calc(40px * var(--ab-ts))' }}><Rich text={b.title} /></h1>
+              {b.subtitle && <p className="mt-6 font-serif text-[15px] italic text-fg/65"><Rich text={b.subtitle} /></p>}
             </div>
             <div className="mt-14 flex justify-center" aria-hidden="true">
               <span className="block h-12 w-px animate-pulse bg-gradient-to-b from-accent/70 to-transparent" />
@@ -73,7 +74,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
         <section className="px-8 py-24 text-center">
           <div className="reveal mx-auto max-w-[22rem]">
             <Eyebrow>{b.eyebrow}</Eyebrow>
-            {b.title && <h2 className="mt-6 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(28px * var(--ab-ts))' }}>{b.title}</h2>}
+            {b.title && <h2 className="mt-6 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(28px * var(--ab-ts))' }}><Rich text={b.title} /></h2>}
             <div className="my-9">
               <Ornament />
             </div>
@@ -97,7 +98,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
           ) : (
             <Img src={pics[0]} alt={b.caption} />
           )}
-          {b.caption && <figcaption className="mt-5 px-8 text-center font-serif text-[13px] italic text-fg/45">{b.caption}</figcaption>}
+          {b.caption && <figcaption className="mt-5 px-8 text-center font-serif text-[13px] italic text-fg/45"><Rich text={b.caption} /></figcaption>}
         </figure>
       );
     }
@@ -139,7 +140,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
               <span className="h-px w-8 bg-accent/40" />
               <Eyebrow>{b.eyebrow}</Eyebrow>
             </div>
-            {b.title && <h3 className="mt-5 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(26px * var(--ab-ts))' }}>{b.title}</h3>}
+            {b.title && <h3 className="mt-5 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(26px * var(--ab-ts))' }}><Rich text={b.title} /></h3>}
             <div className={`mt-5 font-kserif ab-body leading-[2.1] ${center ? 'mx-auto max-w-[22rem]' : ''}`}>
               <Paras text={b.body} />
             </div>
@@ -153,7 +154,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
         <section className="bg-abyss px-8 py-24 text-center">
           <div className="reveal mx-auto max-w-[22rem]">
             <span className="block font-serif text-[64px] leading-none text-accent/70" aria-hidden="true">“</span>
-            <blockquote className="mt-2 font-kserif ab-title leading-[1.8] text-fg/90 whitespace-pre-line" style={{ fontSize: 'calc(20px * var(--ab-ts))' }}>{b.text}</blockquote>
+            <blockquote className="mt-2 font-kserif ab-title leading-[1.8] text-fg/90 whitespace-pre-line" style={{ fontSize: 'calc(20px * var(--ab-ts))' }}><Rich text={b.text} /></blockquote>
             {b.cite && <p className="mt-8 font-display text-[10px] uppercase tracking-[0.4em] text-accent">— {b.cite}</p>}
           </div>
         </section>
@@ -164,7 +165,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
         <section className="px-8 py-24">
           <div className="reveal text-center">
             <Eyebrow>{b.eyebrow}</Eyebrow>
-            {b.title && <h2 className="mt-6 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(26px * var(--ab-ts))' }}>{b.title}</h2>}
+            {b.title && <h2 className="mt-6 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(26px * var(--ab-ts))' }}><Rich text={b.title} /></h2>}
           </div>
           <ol className="mt-14 border-t border-rule">
             {b.items
@@ -173,8 +174,8 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
                 <li key={k} className="reveal grid grid-cols-[48px_1fr] gap-4 border-b border-rule py-8">
                   <span className="font-serif text-[26px] font-light leading-none text-accent">{['I', 'II', 'III', 'IV', 'V', 'VI'][k]}</span>
                   <div>
-                    <p className="font-kserif ab-title text-fg" style={{ fontSize: 'calc(17px * var(--ab-ts))' }}>{it.title}</p>
-                    <p className="mt-2 font-kserif ab-body-sm leading-[2]">{it.body}</p>
+                    <p className="font-kserif ab-title text-fg" style={{ fontSize: 'calc(17px * var(--ab-ts))' }}><Rich text={it.title} /></p>
+                    <p className="mt-2 font-kserif ab-body-sm leading-[2]"><Rich text={it.body} /></p>
                   </div>
                 </li>
               ))}
@@ -188,7 +189,8 @@ export default async function AboutPage() {
   const supabase = createPublicClient();
   const settings = await getSettings(supabase);
   const blocks = parseAbout(settings.about_blocks);
-  const vars = styleVars(parseStyle(settings.about_style));
+  const base = parseStyle(settings.about_style);
+  const vars = styleVars(base);
   const kakao = kakaoOf(settings);
 
   return (
@@ -198,7 +200,9 @@ export default async function AboutPage() {
       <Reveal />
       <Zoom />
       {blocks.map((b, i) => (
-        <Block key={i} b={b} i={blocks.slice(0, i + 1).filter((x) => x.type === 'split').length} />
+        <div key={i} style={styleVars(blockStyle(base, b)) as React.CSSProperties}>
+          <Block b={b} i={blocks.slice(0, i + 1).filter((x) => x.type === 'split').length} />
+        </div>
       ))}
 
       {/* 마무리: 상담 */}

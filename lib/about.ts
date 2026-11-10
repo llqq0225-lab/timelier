@@ -1,12 +1,16 @@
 /** About(메종 이야기) 페이지 블록 — 관리자에서 편집, site_settings 'about_blocks'에 JSON으로 저장 */
 
-export type AboutBlock =
+/** 블록마다 따로 정하는 글자·사진 설정 (비우면 보통) */
+export type BlockStyle = { fs?: 's' | 'm' | 'l' | 'xl'; fw?: 'light' | 'regular' | 'bold'; ts?: 's' | 'm' | 'l'; wm?: boolean };
+
+export type AboutBlock = BlockStyle & (
   | { type: 'hero'; image: string; eyebrow: string; title: string; subtitle: string }
   | { type: 'text'; eyebrow: string; title: string; body: string }
   | { type: 'image'; image: string; image2?: string; caption: string; wide: boolean }
   | { type: 'split'; image: string; image2?: string; eyebrow: string; title: string; body: string; side: 'left' | 'center' | 'right' }
   | { type: 'quote'; text: string; cite: string }
-  | { type: 'pillars'; eyebrow: string; title: string; items: { title: string; body: string }[] };
+  | { type: 'pillars'; eyebrow: string; title: string; items: { title: string; body: string }[] }
+);
 
 export const BLOCK_LABELS: Record<AboutBlock['type'], string> = {
   hero: '첫 화면 (큰 사진 + 제목)',
@@ -123,6 +127,11 @@ export function parseStyle(raw?: string | null): AboutStyle {
   }
 }
 
+/** 블록 설정 → 전체 설정 위에 덮어씀 */
+export function blockStyle(base: AboutStyle, b: BlockStyle): AboutStyle {
+  return { size: b.fs ?? base.size, weight: b.fw ?? base.weight, title: b.ts ?? base.title, wm: b.wm ?? base.wm };
+}
+
 /** 페이지에 넣을 CSS 변수 */
 export function styleVars(s: AboutStyle): Record<string, string> {
   const fs = { s: '14px', m: '15px', l: '16.5px', xl: '18px' }[s.size];
@@ -131,4 +140,21 @@ export function styleVars(s: AboutStyle): Record<string, string> {
   const tw = s.weight === 'bold' ? '500' : s.weight === 'regular' ? '400' : '300';
   const ts = { s: '0.88', m: '1', l: '1.14' }[s.title];
   return { '--ab-fs': fs, '--ab-fw': fw, '--ab-op': op, '--ab-tw': tw, '--ab-ts': ts };
+}
+
+/* ---------------- 글 안에서 부분 강조 ----------------
+   "문구"   → 두껍게 (따옴표는 안 보임)
+   ((문구)) → 작게                                       */
+export type Piece = { t: string; k: 'n' | 'b' | 's' };
+export function splitRich(text: string): Piece[] {
+  const out: Piece[] = [];
+  const re = /"([^"\n]+)"|“([^”\n]+)”|\(\(([^\n]+?)\)\)/g;
+  let last = 0;
+  for (let m; (m = re.exec(text)); ) {
+    if (m.index > last) out.push({ t: text.slice(last, m.index), k: 'n' });
+    out.push(m[3] != null ? { t: m[3], k: 's' } : { t: m[1] ?? m[2], k: 'b' });
+    last = re.lastIndex;
+  }
+  if (last < text.length) out.push({ t: text.slice(last), k: 'n' });
+  return out;
 }
