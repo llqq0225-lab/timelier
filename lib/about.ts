@@ -99,3 +99,36 @@ export function parseAbout(raw?: string | null): AboutBlock[] {
     return DEFAULT_ABOUT;
   }
 }
+
+/* ---------------- 글자·사진 설정 (site_settings 'about_style') ---------------- */
+
+export type AboutStyle = {
+  size: 's' | 'm' | 'l' | 'xl'; // 본문 글자 크기
+  weight: 'light' | 'regular' | 'bold'; // 본문 굵기
+  title: 's' | 'm' | 'l'; // 제목 크기
+  wm: boolean; // 본문 사진에 워터마크
+};
+
+export const DEFAULT_STYLE: AboutStyle = { size: 'm', weight: 'light', title: 'm', wm: true };
+
+export const SIZE_LABELS = { s: '작게', m: '보통', l: '크게', xl: '아주 크게' } as const;
+export const WEIGHT_LABELS = { light: '가늘게', regular: '보통', bold: '두껍게' } as const;
+export const TITLE_LABELS = { s: '작게', m: '보통', l: '크게' } as const;
+
+export function parseStyle(raw?: string | null): AboutStyle {
+  try {
+    return { ...DEFAULT_STYLE, ...(raw ? JSON.parse(raw) : {}) };
+  } catch {
+    return DEFAULT_STYLE;
+  }
+}
+
+/** 페이지에 넣을 CSS 변수 */
+export function styleVars(s: AboutStyle): Record<string, string> {
+  const fs = { s: '14px', m: '15px', l: '16.5px', xl: '18px' }[s.size];
+  const fw = { light: '300', regular: '400', bold: '500' }[s.weight];
+  const op = { light: '0.74', regular: '0.82', bold: '0.9' }[s.weight];
+  const tw = s.weight === 'bold' ? '500' : s.weight === 'regular' ? '400' : '300';
+  const ts = { s: '0.88', m: '1', l: '1.14' }[s.title];
+  return { '--ab-fs': fs, '--ab-fw': fw, '--ab-op': op, '--ab-tw': tw, '--ab-ts': ts };
+}

@@ -6,7 +6,7 @@ import KakaoLink from '@/components/KakaoLink';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getSettings, kakaoOf } from '@/lib/types';
 import { hasKakao } from '@/lib/kakao';
-import { parseAbout, type AboutBlock } from '@/lib/about';
+import { parseAbout, parseStyle, styleVars, type AboutBlock } from '@/lib/about';
 
 export const revalidate = 60;
 export const metadata: Metadata = { title: 'The Maison', description: '타임리에 이야기 — 시간을 고르는 일' };
@@ -58,7 +58,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
           <div className="absolute inset-x-0 bottom-0 px-8 pb-20 text-center">
             <div className="reveal">
               <Eyebrow>{b.eyebrow}</Eyebrow>
-              <h1 className="mt-7 font-kserif text-[40px] font-light leading-[1.25] tracking-[-0.01em] text-fg whitespace-pre-line [text-shadow:0_2px_24px_rgba(26,5,9,0.6)]">{b.title}</h1>
+              <h1 className="mt-7 font-kserif ab-title leading-[1.25] tracking-[-0.01em] text-fg whitespace-pre-line [text-shadow:0_2px_24px_rgba(26,5,9,0.6)]" style={{ fontSize: 'calc(40px * var(--ab-ts))' }}>{b.title}</h1>
               {b.subtitle && <p className="mt-6 font-serif text-[15px] italic text-fg/65">{b.subtitle}</p>}
             </div>
             <div className="mt-14 flex justify-center" aria-hidden="true">
@@ -73,11 +73,11 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
         <section className="px-8 py-24 text-center">
           <div className="reveal mx-auto max-w-[22rem]">
             <Eyebrow>{b.eyebrow}</Eyebrow>
-            {b.title && <h2 className="mt-6 font-kserif text-[28px] font-light leading-[1.45] text-fg whitespace-pre-line">{b.title}</h2>}
+            {b.title && <h2 className="mt-6 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(28px * var(--ab-ts))' }}>{b.title}</h2>}
             <div className="my-9">
               <Ornament />
             </div>
-            <div className="font-kserif text-[15px] font-light leading-[2.15] text-fg/72">
+            <div className="font-kserif ab-body leading-[2.15]">
               <Paras text={b.body} />
             </div>
           </div>
@@ -139,8 +139,8 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
               <span className="h-px w-8 bg-accent/40" />
               <Eyebrow>{b.eyebrow}</Eyebrow>
             </div>
-            {b.title && <h3 className="mt-5 font-kserif text-[26px] font-light leading-[1.45] text-fg whitespace-pre-line">{b.title}</h3>}
-            <div className={`mt-5 font-kserif text-[14.5px] font-light leading-[2.1] text-fg/70 ${center ? 'mx-auto max-w-[22rem]' : ''}`}>
+            {b.title && <h3 className="mt-5 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(26px * var(--ab-ts))' }}>{b.title}</h3>}
+            <div className={`mt-5 font-kserif ab-body leading-[2.1] ${center ? 'mx-auto max-w-[22rem]' : ''}`}>
               <Paras text={b.body} />
             </div>
           </div>
@@ -153,7 +153,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
         <section className="bg-abyss px-8 py-24 text-center">
           <div className="reveal mx-auto max-w-[22rem]">
             <span className="block font-serif text-[64px] leading-none text-accent/70" aria-hidden="true">“</span>
-            <blockquote className="mt-2 font-kserif text-[20px] font-light leading-[1.8] text-fg/90 whitespace-pre-line">{b.text}</blockquote>
+            <blockquote className="mt-2 font-kserif ab-title leading-[1.8] text-fg/90 whitespace-pre-line" style={{ fontSize: 'calc(20px * var(--ab-ts))' }}>{b.text}</blockquote>
             {b.cite && <p className="mt-8 font-display text-[10px] uppercase tracking-[0.4em] text-accent">— {b.cite}</p>}
           </div>
         </section>
@@ -164,7 +164,7 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
         <section className="px-8 py-24">
           <div className="reveal text-center">
             <Eyebrow>{b.eyebrow}</Eyebrow>
-            {b.title && <h2 className="mt-6 font-kserif text-[26px] font-light leading-[1.45] text-fg whitespace-pre-line">{b.title}</h2>}
+            {b.title && <h2 className="mt-6 font-kserif ab-title leading-[1.45] text-fg whitespace-pre-line" style={{ fontSize: 'calc(26px * var(--ab-ts))' }}>{b.title}</h2>}
           </div>
           <ol className="mt-14 border-t border-rule">
             {b.items
@@ -173,8 +173,8 @@ function Block({ b, i }: { b: AboutBlock; i: number }) {
                 <li key={k} className="reveal grid grid-cols-[48px_1fr] gap-4 border-b border-rule py-8">
                   <span className="font-serif text-[26px] font-light leading-none text-accent">{['I', 'II', 'III', 'IV', 'V', 'VI'][k]}</span>
                   <div>
-                    <p className="font-kserif text-[17px] text-fg">{it.title}</p>
-                    <p className="mt-2 font-kserif text-[14px] font-light leading-[2] text-fg/65">{it.body}</p>
+                    <p className="font-kserif ab-title text-fg" style={{ fontSize: 'calc(17px * var(--ab-ts))' }}>{it.title}</p>
+                    <p className="mt-2 font-kserif ab-body-sm leading-[2]">{it.body}</p>
                   </div>
                 </li>
               ))}
@@ -188,12 +188,13 @@ export default async function AboutPage() {
   const supabase = createPublicClient();
   const settings = await getSettings(supabase);
   const blocks = parseAbout(settings.about_blocks);
+  const vars = styleVars(parseStyle(settings.about_style));
   const kakao = kakaoOf(settings);
 
   return (
-    <article>
+    <article style={vars as React.CSSProperties}>
       {/* 한글 명조체 (Noto Serif KR) */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap" precedence="default" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600&display=swap" precedence="default" />
       <Reveal />
       <Zoom />
       {blocks.map((b, i) => (
@@ -205,7 +206,7 @@ export default async function AboutPage() {
         <div className="reveal">
           <Ornament />
           <p className="mt-10 font-serif text-[34px] font-light text-fg">Private Consultation</p>
-          <p className="mx-auto mt-4 max-w-[18rem] font-kserif text-[14px] font-light leading-[2] text-fg/60">
+          <p className="mx-auto mt-4 max-w-[18rem] font-kserif ab-body-sm leading-[2]">
             타임리에의 컨시어지가 1:1로 안내해 드립니다.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4">

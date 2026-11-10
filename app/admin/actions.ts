@@ -367,10 +367,15 @@ export async function createBrand(nameKo: string, nameEn: string): Promise<{ id:
 
 /* ---------------- 메종 이야기 (About) ---------------- */
 
-export async function saveAbout(json: string) {
+export async function saveAbout(json: string, styleJson?: string) {
   const supabase = await requireAdmin();
   JSON.parse(json); // 형식 확인
-  const { error } = await supabase.from('site_settings').upsert({ key: 'about_blocks', value: json });
+  const rows = [{ key: 'about_blocks', value: json }];
+  if (styleJson) {
+    JSON.parse(styleJson);
+    rows.push({ key: 'about_style', value: styleJson });
+  }
+  const { error } = await supabase.from('site_settings').upsert(rows);
   if (error) throw new Error(error.message);
   revalidatePath('/about');
 }

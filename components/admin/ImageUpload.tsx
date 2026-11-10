@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { WM_KEYS, drawWatermark, readWm, type WmConfig } from '@/lib/watermark';
 
 /** 워터마크를 찍는 사진 종류 (배너·로고·팝업·공유이미지 등에는 안 찍음) */
-const WM_FOLDERS = ['products', 'shipping', 'reviews'];
+const WM_FOLDERS = ['products', 'shipping', 'reviews', 'about-wm']; // about-wm = 메종 이야기 본문 사진 (워터마크 켰을 때)
 
 // 워터마크 설정은 한 번만 불러옴
 let wmPromise: Promise<WmConfig> | null = null;

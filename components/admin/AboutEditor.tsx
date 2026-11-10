@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { saveAbout } from '@/app/admin/actions';
-import ImageUpload from './ImageUpload';
-import { BLOCK_LABELS, DEFAULT_ABOUT, emptyBlock, type AboutBlock } from '@/lib/about';
+import ImageUpload, { uploadImage } from './ImageUpload';
+import { BLOCK_LABELS, DEFAULT_ABOUT, SIZE_LABELS, TITLE_LABELS, WEIGHT_LABELS, emptyBlock, styleVars, type AboutBlock, type AboutStyle } from '@/lib/about';
 
 type Patch = Partial<Record<string, unknown>>;
 
@@ -21,8 +21,58 @@ function Field({ label, value, onChange, rows, placeholder }: { label: string; v
 }
 
 /** 관리자 > 메종 이야기(About) 편집 */
-export default function AboutEditor({ initial }: { initial: AboutBlock[] }) {
+/** 버튼 여러 개 중 하나 고르기 */
+function Choice<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Record<T, string>; onChange: (v: T) => void }) {
+  return (
+    <div>
+      <p className="label">{label}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {(Object.keys(options) as T[]).map((k) => (
+          <button key={k} type="button" className={`btn-line !py-1 text-xs ${value === k ? '!border-ink bg-neutral-900 text-white' : ''}`} onClick={() => onChange(k)}>
+            {options[k]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const isWm = (url: string) => url.includes('/about-wm/');
+
+export default function AboutEditor({ initial, initialStyle, wmOn }: { initial: AboutBlock[]; initialStyle: AboutStyle; wmOn: boolean }) {
   const [blocks, setBlocks] = useState<AboutBlock[]>(initial);
+  const [style, setStyle] = useState<AboutStyle>(initialStyle);
+  const [retro, setRetro] = useState('');
+  const setS = (p: Partial<AboutStyle>) => setStyle((x) => ({ ...x, ...p }));
+  const bodyFolder = style.wm ? 'about-wm' : 'about';
+
+  // 이미 올린 본문 사진에 워터마크 넣기 (첫 화면 사진은 제외)
+  const pending0 = blocks.flatMap((b) => (b.type === 'split' || b.type === 'image' ? [b.image, b.image2 ?? ''] : [])).filter((u) => u && !isWm(u));
+  async function applyWmToExisting() {
+    if (!confirm(`이미 올린 본문 사진 ${pending0.length}장에 워터마크를 넣을까요? (원본 사진은 그대로 남아요)`)) return;
+    const map = new Map<string, string>();
+    let k = 0;
+    for (const url of pending0) {
+      k++;
+      setRetro(`워터마크 넣는 중… ${k}/${pending0.length}`);
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const file = new File([blob], 'about.jpg', { type: blob.type || 'image/jpeg' });
+        map.set(url, await uploadImage(file, 'about-wm'));
+      } catch {
+        /* 실패한 사진은 그대로 둠 */
+      }
+    }
+    setBlocks((bs) =>
+      bs.map((b) =>
+        b.type === 'split' || b.type === 'image'
+          ? ({ ...b, image: map.get(b.image) ?? b.image, image2: b.image2 ? map.get(b.image2) ?? b.image2 : b.image2 } as AboutBlock)
+          : b,
+      ),
+    );
+    setRetro(`${map.size}장에 넣었어요. 아래 [저장하기]를 눌러야 사이트에 반영돼요.`);
+  }
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState('');
   const [addType, setAddType] = useState<AboutBlock['type']>('split');
@@ -41,13 +91,48 @@ export default function AboutEditor({ initial }: { initial: AboutBlock[] }) {
   function save() {
     setMsg('');
     start(async () => {
-      await saveAbout(JSON.stringify(blocks));
+      await saveAbout(JSON.stringify(blocks), JSON.stringify(style));
       setMsg('저장했어요. 사이트에 1분 안에 반영돼요.');
     });
   }
 
   return (
     <div className="space-y-4 max-w-3xl">
+      {/* 글자·사진 설정 */}
+      <section className="bg-white border border-line p-5 space-y-5">
+        <b className="text-sm">글자 · 사진 설정</b>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Choice label="본문 글자 크기" value={style.size} options={SIZE_LABELS} onChange={(v) => setS({ size: v })} />
+          <Choice label="글씨 굵기" value={style.weight} options={WEIGHT_LABELS} onChange={(v) => setS({ weight: v })} />
+          <Choice label="제목 크기" value={style.title} options={TITLE_LABELS} onChange={(v) => setS({ title: v })} />
+        </div>
+        {/* 미리보기 (사이트와 같은 색·글꼴) */}
+        <div className="bg-[#2b0a15] px-6 py-7 text-center" style={styleVars(style) as React.CSSProperties}>
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600&display=swap" precedence="default" />
+          <p className="font-kserif ab-title text-[#f3eadb]" style={{ fontSize: 'calc(26px * var(--ab-ts))' }}>좋은 시계는 오래 곁에 남습니다</p>
+          <p className="mt-4 font-kserif ab-body leading-[2.1]">평생 손목 위에 둘 시계를, 우리는 얼마나 신중하게 고르고 있을까.</p>
+        </div>
+
+        <div className="border-t border-line pt-4 space-y-2">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input type="checkbox" checked={style.wm} onChange={(e) => setS({ wm: e.target.checked })} /> 본문 사진에 워터마크 넣기
+          </label>
+          <p className="text-xs text-neutral-500">
+            켜두면 앞으로 올리는 본문 사진(사진 + 글, 사진 블록)에 상품 사진과 같은 워터마크가 들어가요. 첫 화면 큰 사진에는 넣지 않아요.
+            {!wmOn && <b className="text-red-600"> 지금 ‘배너 · 사이트 설정’에서 워터마크가 꺼져 있어서 들어가지 않아요. 거기서 먼저 켜주세요.</b>}
+          </p>
+          {style.wm && wmOn && pending0.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" className="btn-line text-xs" onClick={applyWmToExisting} disabled={retro.startsWith('워터마크 넣는 중')}>
+                이미 올린 사진 {pending0.length}장에도 넣기
+              </button>
+              {retro && <span className="text-xs text-neutral-600">{retro}</span>}
+            </div>
+          )}
+          {retro && !(style.wm && wmOn && pending0.length > 0) && <p className="text-xs text-green-700">{retro}</p>}
+        </div>
+      </section>
+
       {blocks.map((b, i) => (
         <section key={i} className="bg-white border border-line p-5 space-y-4">
           <div className="flex items-center gap-2">
@@ -63,13 +148,13 @@ export default function AboutEditor({ initial }: { initial: AboutBlock[] }) {
           {'image' in b && (
             <div>
               <label className="label">사진 {b.type === 'hero' ? '(세로 사진, 화면 가득)' : '(세로 4:5 비율이 잘 어울려요)'}</label>
-              <ImageUpload value={b.image} onChange={(v) => update(i, { image: v })} folder="about" />
+              <ImageUpload value={b.image} onChange={(v) => update(i, { image: v })} folder={b.type === 'hero' ? 'about' : bodyFolder} />
             </div>
           )}
           {(b.type === 'split' || b.type === 'image') && (
             <div>
               <label className="label">두 번째 사진 (선택 · 넣으면 두 장이 나란히 보여요)</label>
-              <ImageUpload value={b.image2 ?? ''} onChange={(v) => update(i, { image2: v })} folder="about" />
+              <ImageUpload value={b.image2 ?? ''} onChange={(v) => update(i, { image2: v })} folder={bodyFolder} />
             </div>
           )}
           {'eyebrow' in b && <Field label="작은 영문 (예: Our Story)" value={b.eyebrow} onChange={(v) => update(i, { eyebrow: v })} />}

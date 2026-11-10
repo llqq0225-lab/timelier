@@ -99,3 +99,8 @@ html, body { overflow-x: clip; } /* 화면 밖으로 삐져나와 가로로 흔�
 
 /* 메인 배너 아래 진행 줄 */
 @keyframes heroBar { from { width: 0; } to { width: 100%; } }
+
+/* 메종 이야기: 관리자에서 정한 글자 크기·굵기 */
+.ab-body { font-size: var(--ab-fs, 15px); font-weight: var(--ab-fw, 300); color: rgb(243 234 219 / var(--ab-op, 0.74)); }
+.ab-body-sm { font-size: calc(var(--ab-fs, 15px) * 0.94); font-weight: var(--ab-fw, 300); color: rgb(243 234 219 / calc(var(--ab-op, 0.74) - 0.06)); }
+.ab-title { font-weight: var(--ab-tw, 300); }
