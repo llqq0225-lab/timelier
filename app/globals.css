@@ -96,3 +96,6 @@ html, body { overflow-x: clip; } /* 화면 밖으로 삐져나와 가로로 흔�
 @media (prefers-reduced-motion: reduce) { .reveal-on .reveal { opacity: 1; transform: none; transition: none; } }
 /* 명조 글꼴 안의 숫자(1:1 등)가 작아 보이지 않게 */
 .font-kserif { font-variant-numeric: lining-nums; }
+
+/* 메인 배너 아래 진행 줄 */
+@keyframes heroBar { from { width: 0; } to { width: 100%; } }

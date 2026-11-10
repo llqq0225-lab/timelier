@@ -63,11 +63,11 @@ export default function SettingsForm({ settings, banners }: { settings: Record<s
     <form action={saveSettings} className="space-y-8 max-w-3xl">
       <section className="bg-white border border-line p-6 space-y-4">
         <div>
-          <h2 className="font-bold">첫 화면 사진 (배너 1번이 첫 화면에 나와요)</h2>
+          <h2 className="font-bold">첫 화면 배너 (사진을 넣은 칸이 1번부터 순서대로 6초마다 부드럽게 넘어가요)</h2>
           <p className="text-xs text-neutral-500 mt-1">휴대폰 화면에 꽉 차는 <b>세로 사진(1080×1350 이상)</b>이 좋아요. 시계는 위쪽 가운데, 아래쪽 40%는 글씨가 올라가니 어둡고 비어 있는 사진이 고급스러워요.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-3">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4, 5].map((n) => (
             <BannerSlot key={n} n={n} banner={banners[n - 1]} />
           ))}
         </div>

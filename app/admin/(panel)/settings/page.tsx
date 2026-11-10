@@ -7,7 +7,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const supabase = await createClient();
   const [settings, { data: banners }] = await Promise.all([
     getSettings(supabase),
-    supabase.from('banners').select('*').eq('placement', 'hero').order('sort_order').order('id').limit(3),
+    supabase.from('banners').select('*').eq('placement', 'hero').order('sort_order').order('id').limit(5),
   ]);
 
   return (

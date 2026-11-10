@@ -7,6 +7,7 @@ import { getSettings, kakaoOf, type Brand, type BrandCollection, type Product, t
 import { hasKakao } from '@/lib/kakao';
 import { thumb } from '@/lib/img';
 import ShowcaseRow from '@/components/ShowcaseRow';
+import HeroSlider from '@/components/HeroSlider';
 import { parseShowcases } from '@/lib/showcase';
 
 const PRODUCT_FIELDS = '*, brands(name_ko, name_en, slug)';
@@ -39,7 +40,7 @@ const STEPS = [
 export default async function Home() {
   const supabase = createPublicClient();
   const [banners, brands, selection, cols, videos, reviews, settings] = await Promise.all([
-    supabase.from('banners').select('*').eq('placement', 'hero').eq('is_active', true).order('sort_order').limit(1),
+    supabase.from('banners').select('*').eq('placement', 'hero').eq('is_active', true).order('sort_order').limit(8),
     supabase.from('brands').select('*').order('sort_order'),
     supabase.from('products').select(PRODUCT_FIELDS).order('sort_order').order('has_video', { ascending: false }).order('created_at', { ascending: false }).limit(6),
     supabase.from('brand_collections').select('*'),
@@ -50,7 +51,7 @@ export default async function Home() {
 
   const allBrands = (brands.data ?? []) as Brand[];
   const brandById = new Map(allBrands.map((b) => [b.id, b]));
-  const hero = ((banners.data ?? []) as Banner[])[0];
+  const heroes = ((banners.data ?? []) as Banner[]).filter((b) => b.image_url);
   const kakao = kakaoOf(settings);
 
   // 배너 + 제품 줄: 관리자 '메인 쇼케이스'에서 설정 → 없으면 상품이 가장 많은 모델 3개로 자동
@@ -103,22 +104,8 @@ export default async function Home() {
 
   return (
     <>
-      {/* 첫 화면: 큰 사진 한 장 */}
-      <section className="relative h-[78svh] min-h-[520px] overflow-hidden bg-abyss">
-        {hero?.image_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={hero.image_url} alt={hero.title ?? ''} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1a0509]/25 via-[#1a0509]/25 to-[#1a0509]/95" />
-        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center px-6 pb-16 text-center">
-          <p className="eyebrow !text-[#d9bd8f]">Maison Timelier</p>
-          <h1 className="display mt-5 text-[34px] leading-[1.2] text-fg whitespace-pre-line">{hero?.title || 'The Art of Time'}</h1>
-          <p className="mt-5 max-w-md text-[13px] leading-relaxed text-fg/75">
-            {hero?.subtitle || '한 점 한 점 직접 검수한 시계만을 소개합니다.'}
-          </p>
-          <Link href={hero?.link_url || '/ranking'} className="cta mt-9">Discover</Link>
-        </div>
-      </section>
+      {/* 첫 화면: 배너 여러 장 (페이드로 넘어감) */}
+      <HeroSlider slides={heroes} />
 
       {/* 소개 문장 */}
       <section className="mx-auto max-w-3xl px-6 py-24 text-center">

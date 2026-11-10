@@ -168,8 +168,8 @@ export async function saveSettings(formData: FormData) {
     { key: 'wm_on', value: formData.get('wm_on') === 'on' ? 'Y' : 'N' },
   ]);
 
-  // 메인 배너 3칸
-  for (const n of [1, 2, 3]) {
+  // 메인 배너 5칸
+  for (const n of [1, 2, 3, 4, 5]) {
     const p = `banner${n}_`;
     const id = num(formData.get(`${p}id`));
     const image = str(formData.get(`${p}image`));
